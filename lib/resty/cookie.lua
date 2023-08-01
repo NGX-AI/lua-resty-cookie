@@ -39,14 +39,14 @@ local function get_cookie_table(text_cookie)
         return {}
     end
 
-    local EXPECT_KEY    = 1
-    local EXPECT_VALUE  = 2
-    local EXPECT_SP     = 3
+    local EXPECT_KEY   = 1
+    local EXPECT_VALUE = 2
+    local EXPECT_SP    = 3
 
     local n = 0
     local len = #text_cookie
 
-    for i=1, len do
+    for i = 1, len do
         if byte(text_cookie, i) == SEMICOLON then
             n = n + 1
         end
@@ -61,15 +61,17 @@ local function get_cookie_table(text_cookie)
 
     while j <= len do
         if state == EXPECT_KEY then
-            if byte(text_cookie, j) == EQUAL then
+            if byte(text_cookie, j) == EQUAL
+               or byte(text_cookie, j) == SEMICOLON
+            then
                 key = sub(text_cookie, i, j - 1)
                 state = EXPECT_VALUE
                 i = j + 1
             end
         elseif state == EXPECT_VALUE then
             if byte(text_cookie, j) == SEMICOLON
-                    or byte(text_cookie, j) == SPACE
-                    or byte(text_cookie, j) == HTAB
+               or byte(text_cookie, j) == SPACE
+               or byte(text_cookie, j) == HTAB
             then
                 value = sub(text_cookie, i, j - 1)
                 cookie_table[key] = value
@@ -80,7 +82,7 @@ local function get_cookie_table(text_cookie)
             end
         elseif state == EXPECT_SP then
             if byte(text_cookie, j) ~= SPACE
-                and byte(text_cookie, j) ~= HTAB
+               and byte(text_cookie, j) ~= HTAB
             then
                 state = EXPECT_KEY
                 i = j

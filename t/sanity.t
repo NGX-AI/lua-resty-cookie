@@ -462,3 +462,32 @@ GET /t
 [error]
 --- response_body
 Cookie string: Name=Bob; Expires=Wed, 09 Jun 2021 10:18:14 GMT; Max-Age=50; Domain=example.com; Path=/; Secure; HttpOnly; SameSite=None; a4334aebaec
+
+
+
+=== TEST 14: Cookie key only
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua_block {
+            local ck = require("resty.cookie")
+
+            local cookie, err = ck:new()
+            if not cookie then
+                ngx.log(ngx.ERR, err)
+                return
+            end
+
+            local fields = cookie:get_all()
+
+            ngx.say("aaa = ", fields["aaa"])
+        }
+    }
+--- request
+GET /t
+--- more_headers
+Cookie: SID=31d4d96e407aad42; HttpOnly; aaa=bbb
+--- no_error_log
+[error]
+--- response_body
+aaa = bbb
